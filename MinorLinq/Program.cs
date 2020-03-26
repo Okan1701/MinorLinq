@@ -1,4 +1,6 @@
 ﻿using System;
+using MinorLinq.Lib;
+using MinorLinq.Models;
 
 namespace MinorLinq
 {
@@ -6,7 +8,10 @@ namespace MinorLinq
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            ConsoleDataContext context = new ConsoleDataContext();
+            Query query = context.Posts.Select(p => new {Id = p.Id, CreatedOn = p.CreatedOn});
+            
+            Console.WriteLine("Done");
         }
     }
 }
