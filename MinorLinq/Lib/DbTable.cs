@@ -12,7 +12,7 @@ namespace MinorLinq.Lib
             assignedDataContext = context;
         }
 
-        public Query Select(Func<TEntity, object> selectFunc)
+        public Query<TEntity> Select(Func<TEntity, object> selectFunc)
         {
             TEntity emptyEntity = new TEntity();
             object selectRes = selectFunc(emptyEntity);
@@ -22,7 +22,12 @@ namespace MinorLinq.Lib
             {
                 properties.Add(prop.Name);
             }
-            return new Query(entityName, properties.ToArray());
+            return new Query<TEntity>(entityName, properties.ToArray());
+        }
+
+        public Query<TEntity> Where(Func<TEntity, object> whereFunc)
+        {
+            throw new NotImplementedException();
         }
     }
 }

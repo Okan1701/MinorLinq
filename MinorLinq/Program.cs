@@ -9,7 +9,7 @@ namespace MinorLinq
         static void Main(string[] args)
         {
             ConsoleDataContext context = new ConsoleDataContext();
-            Query query = context.Posts.Select(p => new {Id = p.Id, CreatedOn = p.CreatedOn});
+            Query<Posts> query = context.Posts.Select(p => new  { p.Id });
             
             Console.WriteLine("Done");
         }
