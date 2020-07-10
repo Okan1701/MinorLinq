@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MinorLinq.Lib;
 
 namespace MinorLinq.Lib
 {
@@ -7,11 +8,13 @@ namespace MinorLinq.Lib
     {
         private string tableName;
         private string[] selects;
+        private QueryWhereCondition[] where;
 
-        public Query(string tableName, string[] selects)
+        public Query(string tableName, string[] selects, QueryWhereCondition[] where)
         {
             this.tableName = tableName;
             this.selects = selects;
+            this.where = where;
         }
         
         public Query<TEntity> Select(Func<TEntity, object> selectFunc)
@@ -24,7 +27,7 @@ namespace MinorLinq.Lib
             {
                 properties.Add(prop.Name);
             }
-            return new Query<TEntity>(entityName, properties.ToArray());
+            return new Query<TEntity>(entityName, properties.ToArray(), null);
         }
     }
 }
