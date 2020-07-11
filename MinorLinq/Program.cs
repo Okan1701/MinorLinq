@@ -11,8 +11,11 @@ namespace MinorLinq
         {
             ConsoleDataContext context = new ConsoleDataContext();
             Query<Posts> query = context.Posts.Select(p => new  { p.Id, p.CreatedOn });
-            var test = "trololololo";
             var where = context.Posts.Where(p => p.DefaultLanguageCode == "ss");
+
+            var multi = context.Posts.Select(x => new { x.AuthorId })
+                .Select(x => new { x.CategoryId, x.EditedOn })
+                .Where(x => x.CategoryId == 5);
 
             Console.WriteLine("Done");
         }
