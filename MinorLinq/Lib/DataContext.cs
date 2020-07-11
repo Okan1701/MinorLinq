@@ -1,13 +1,19 @@
+using System;
+
 namespace MinorLinq.Lib
 {
-    public abstract class DataContext : IDataContext
+    public abstract class DataContext : IDataContext, IDisposable
     {
-        protected IDbConnectionHandler dbConnectionHandler;
+        protected IDbDriver dbDriver;
+        
+        public bool Disposed { get; set; } = false;
 
         public DataContext()
         {
             OnInit();
         }
+
+        public void Dispose() => Dispose(true);
 
         private void OnInit()
         {
@@ -26,6 +32,14 @@ namespace MinorLinq.Lib
             }
         }
 
-
+        protected virtual void Dispose(bool disposing) 
+        {
+            if (Disposed) return;
+            if (disposing) 
+            {
+                dbDriver.CloseConnection();
+                Disposed = true;
+            }
+        }
     }
 }

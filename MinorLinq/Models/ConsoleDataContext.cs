@@ -1,11 +1,17 @@
 using MinorLinq.Lib;
+using MinorLinq.Lib.Drivers.Npgsql;
 
 namespace MinorLinq.Models
 {
     public class ConsoleDataContext : DataContext
     {
-        public DbTable<Posts> Posts { get; set; } = new DbTable<Posts>();
-        public DbTable<Categories> Categories { get; set; } = new DbTable<Categories>();
+        public DbTable<Post> Posts { get; set; } = new DbTable<Post>();
+        public DbTable<Category> Categories { get; set; } = new DbTable<Category>();
+
+        public ConsoleDataContext() 
+        {
+            dbDriver = new NpgsqlDriver();
+        }
 
     }
 }
