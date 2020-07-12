@@ -9,13 +9,13 @@ namespace MinorLinq
     {
         static void Main(string[] args)
         {
-            ConsoleDataContext context = new ConsoleDataContext();
-            Query<Post> query = context.Posts.Select(p => new  { p.Id, p.CreatedOn });
-            var where = context.Posts.Where(p => p.DefaultLanguageCode == "ss");
-            int test = 5;
-            var multi = context.Posts.Select(x => new { x.AuthorId })
-                .Select(x => new { x.CategoryId, x.EditedOn })
-                .Where(x => x.CategoryId == test);
+            using (var context = new ConsoleDataContext()) 
+            {
+                var multi = context.Categories.Select(x => new { x.Id, x.DefaultLanguageCode })
+                    .Where(x => x.Id == 2);
+
+                multi.ToList();
+            }
 
             Console.WriteLine("Done");
         }

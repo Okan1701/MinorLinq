@@ -8,9 +8,9 @@ namespace MinorLinq.Models
         public DbTable<Post> Posts { get; set; } = new DbTable<Post>();
         public DbTable<Category> Categories { get; set; } = new DbTable<Category>();
 
-        public ConsoleDataContext() 
+        public ConsoleDataContext() : base()
         {
-            dbDriver = new NpgsqlDriver();
+            //dbDriver = new NpgsqlDriver();
         }
 
     }

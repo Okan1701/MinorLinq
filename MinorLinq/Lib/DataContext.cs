@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using MinorLinq.Lib.Drivers.Npgsql;
 
 namespace MinorLinq.Lib
 {
@@ -10,6 +12,7 @@ namespace MinorLinq.Lib
 
         public DataContext()
         {
+            dbDriver = new NpgsqlDriver();
             OnInit();
         }
 
@@ -18,13 +21,14 @@ namespace MinorLinq.Lib
         private void OnInit()
         {
             OnEntityRegister();
+            dbDriver.OpenConnection("Host=192.168.2.204;Username=postgres;Password=138b1488Smdfij8w!;Database=MinorLinq_t01");
         }
 
         protected virtual void OnEntityRegister()
         {
             foreach (var property in this.GetType().GetProperties())
             {
-                if (property.PropertyType == typeof(IDbTable))
+                if (typeof(IDbTable).IsAssignableFrom(property.PropertyType))
                 {
                     IDbTable entity = (IDbTable)property.GetValue(this);
                     entity.SetAssignedContext(this);
@@ -37,9 +41,17 @@ namespace MinorLinq.Lib
             if (Disposed) return;
             if (disposing) 
             {
-                dbDriver.CloseConnection();
+                //dbDriver.CloseConnection();
                 Disposed = true;
             }
+        }
+
+        public List<TEntity> ExecuteQuery<TEntity>(string tableName, string[] selects, QueryCondition[] conditions)
+        {
+            if (Disposed) throw new ObjectDisposedException("Context is already disposed and cannot accept queries!");
+            dbDriver.ExecuteQuery(tableName, selects, conditions);
+
+            return null;
         }
     }
 }

@@ -2,6 +2,6 @@ namespace MinorLinq.Lib
 {
     public interface IDbTable
     {
-        void SetAssignedContext(DataContext context);
+        void SetAssignedContext(IDataContext context);
     }
 }

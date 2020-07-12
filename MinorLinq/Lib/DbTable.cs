@@ -7,13 +7,11 @@ namespace MinorLinq.Lib
 {
     public class DbTable<TEntity> : Query<TEntity>,IDbTable where TEntity : class, new()
     {
-        private IDataContext assignedDataContext;
+        public DbTable() : base(typeof(TEntity).Name, typeof(TEntity).GetProperties().Select(x => x.Name).ToArray() , new QueryCondition[0]) { }
 
-        public DbTable() : base(typeof(TEntity).Name, typeof(TEntity).GetProperties().Select(x => x.Name).ToArray() , new QueryWhereCondition[0]) { }
-
-        public void SetAssignedContext(DataContext context)
+        public void SetAssignedContext(IDataContext context)
         {
-            assignedDataContext = context;
+            this.context = context;
         }
     }
 }
