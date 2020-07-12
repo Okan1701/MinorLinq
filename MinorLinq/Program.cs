@@ -11,7 +11,7 @@ namespace MinorLinq
     {
         static void Main(string[] args)
         {
-            using (var context = new ConsoleDataContext(options => options.SetLogQuery(true)))
+            using (var context = new ConsoleDataContext(options => options.EnableLogging(true)))
             {
                 List<Category> categories = context.Categories
                     .Select(x => new {x.Id, x.DefaultLanguageCode, x.CreatedOn})

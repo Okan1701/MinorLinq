@@ -8,11 +8,12 @@ namespace MinorLinq.Lib
         
         public IDbDriver DbDriver { get; set; }
         public IDataDeserializer Deserializer { get; set; } = new DataDeserializer();
-        public bool LogQuery { get; set; }
+        public ILogger Logger { get; set; } = new Logger();
+        public bool Logging { get; set; }
 
-        public DataContextBuilder SetLogQuery(bool log)
+        public DataContextBuilder EnableLogging(bool log)
         {
-            LogQuery = log;
+            Logging = log;
             return this;
         }
         

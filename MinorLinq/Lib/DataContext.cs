@@ -10,6 +10,7 @@ namespace MinorLinq.Lib
     {
         protected IDbDriver dbDriver;
         protected IDataDeserializer deserializer;
+        protected ILogger logger;
         protected bool logQuery;
         
         public bool Disposed { get; set; }
@@ -42,7 +43,8 @@ namespace MinorLinq.Lib
             
             dbDriver = options.DbDriver;
             deserializer = options.Deserializer;
-            logQuery = options.LogQuery;
+            logger = options.Logger;
+            logQuery = options.Logging;
             IsConfigured = true;
             
             OnEntityRegister();
@@ -84,7 +86,10 @@ namespace MinorLinq.Lib
             stopWatch.Start();
             var queryRes = dbDriver.ExecuteQuery(tableName, selects, conditions);
             stopWatch.Stop();
-            if (logQuery) { Console.WriteLine($"Execution of query took {stopWatch.ElapsedMilliseconds} ms | SQL: {queryRes.Item2}"); }
+            if (logQuery)
+            {
+                logger.LogQueryResult(stopWatch.ElapsedMilliseconds, queryRes.Item2);
+            }
             return deserializer.Deserialize<TEntity>(queryRes.Item1);
         }
     }
