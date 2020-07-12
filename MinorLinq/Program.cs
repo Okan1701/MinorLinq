@@ -13,9 +13,15 @@ namespace MinorLinq
         {
             using (var context = new ConsoleDataContext(options => options.EnableLogging(true)))
             {
+                var test = context.Categories
+                    .Select(x => new {x.Id, x.DefaultLanguageCode, x.CreatedOn})
+                    .Where(x => x.DefaultLanguageCode == "NL-nl")
+                    .Where(x => x.Id == 1);
+                
                 List<Category> categories = context.Categories
                     .Select(x => new {x.Id, x.DefaultLanguageCode, x.CreatedOn})
-                    .Where(x => 2 == x.Id)
+                    .Where(x => x.DefaultLanguageCode == "NL-nl")
+                    .Where(x => x.Id == 1)
                     .ToList();
                 Console.WriteLine($"{categories.Count} results");
             }

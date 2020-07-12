@@ -57,8 +57,9 @@ namespace MinorLinq.Lib
                 RightMember = ProccesConditionalExpressionMember(binaryExpr.Right, columnNames),
                 OperatorType = binaryExpr.NodeType 
             };
+            where = where.Concat(new[] { whereCondition }).ToArray();
 
-            return new Query<TEntity>(tableName, selects, new QueryCondition[] { whereCondition }, context);
+            return new Query<TEntity>(tableName, selects, where, context);
         }
 
         public List<TEntity> ToList() 

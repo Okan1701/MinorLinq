@@ -12,6 +12,7 @@ namespace MinorLinq.Lib.Drivers.Npgsql
     {
         private NpgsqlConnection dbConnection;
 
+        public string DriverName { get; set; } = "PostgreSQL v1.0.0";
         public string ConnectionString { get; set; }
 
         public void OpenConnection() 
@@ -73,7 +74,7 @@ namespace MinorLinq.Lib.Drivers.Npgsql
                     value = condition.LeftMember.ValueRaw;
                 }
 
-                var prefix = first ? "" : ",";
+                var prefix = first ? "" : " AND ";
                 sql += $"{prefix}t.\"{column}\" = @{column}";
                 first = false;
 

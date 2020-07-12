@@ -11,7 +11,7 @@ namespace MinorLinq.Lib
         protected IDbDriver dbDriver;
         protected IDataDeserializer deserializer;
         protected ILogger logger;
-        protected bool logQuery;
+        protected bool isLogging;
         
         public bool Disposed { get; set; }
         public bool IsConfigured { get; set; }
@@ -40,15 +40,20 @@ namespace MinorLinq.Lib
         private void OnInit(DataContextBuilder options)
         {
             OnConfigure(options);
+            IsConfigured = true;
             
             dbDriver = options.DbDriver;
             deserializer = options.Deserializer;
             logger = options.Logger;
-            logQuery = options.Logging;
+            isLogging = options.Logging;
             IsConfigured = true;
             
             OnEntityRegister();
             dbDriver.OpenConnection();
+            if (isLogging)
+            {
+                logger.Log($"{this.GetType().Name} has been initialized with driver: {dbDriver.DriverName} ({dbDriver.GetType().FullName})");
+            }
         }
 
         protected virtual void OnEntityRegister()
@@ -76,6 +81,10 @@ namespace MinorLinq.Lib
                 dbDriver.CloseConnection();
                 GC.Collect();
                 Disposed = true;
+                if (isLogging)
+                {
+                    logger.Log($"{this.GetType().Name} has been disposed");
+                }
             }
         }
 
@@ -86,7 +95,7 @@ namespace MinorLinq.Lib
             stopWatch.Start();
             var queryRes = dbDriver.ExecuteQuery(tableName, selects, conditions);
             stopWatch.Stop();
-            if (logQuery)
+            if (isLogging)
             {
                 logger.LogQueryResult(stopWatch.ElapsedMilliseconds, queryRes.Item2);
             }
