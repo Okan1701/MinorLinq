@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using MinorLinq.Lib.Drivers.Npgsql;
 using MinorLinq.Lib.Interfaces;
 
@@ -100,6 +101,21 @@ namespace MinorLinq.Lib
                 logger.LogQueryResult(stopWatch.ElapsedMilliseconds, queryRes.Item2);
             }
             return deserializer.Deserialize<TEntity>(queryRes.Item1);
+        }        
+        
+        public async Task<List<TEntity>> ExecuteQueryAsync<TEntity>(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns) where TEntity : class, new()
+        {
+            if (Disposed) throw new ObjectDisposedException("Context is already disposed and cannot accept queries!");
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            var queryRes = await dbDriver.ExecuteQueryAsync(tableName, selects, conditions, orderByColumns);
+            stopWatch.Stop();
+            if (isLogging)
+            {
+                logger.LogQueryResult(stopWatch.ElapsedMilliseconds, queryRes.Item2);
+            }
+            return await deserializer.DeserializeAsync<TEntity>(queryRes.Item1);
         }
+        
     }
 }

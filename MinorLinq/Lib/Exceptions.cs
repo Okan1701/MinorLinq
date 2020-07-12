@@ -22,4 +22,11 @@ namespace MinorLinq.Lib
         public MinorLinqInvalidExpressionTypeException(string message) : base(message) { }
         public MinorLinqInvalidExpressionTypeException(string message, Exception inner) : base(message, inner) { }
     }
+    
+    public class MinorLinqInvalidReaderRowException : Exception
+    {
+        public MinorLinqInvalidReaderRowException() { }
+        public MinorLinqInvalidReaderRowException(string message) : base(message) { }
+        public MinorLinqInvalidReaderRowException(string message, Exception inner) : base(message, inner) { }
+    }
 }

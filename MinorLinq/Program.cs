@@ -20,14 +20,13 @@ namespace MinorLinq
                     .Select(x => new {x.Id, x.DefaultLanguageCode, x.CreatedOn})
                     .Where(x => x.Id > 5);
 
-                List<Category> categories = context.Categories
+                List<Category> categories = await context.Categories
                     .Select(x => new {x.Id, x.DefaultLanguageCode, x.CreatedOn})
                     .Where(x => x.DefaultLanguageCode != "NL-nl")
                     .Where(x => x.Id >= 1)
-                    .Where(x => x.IsHidden)
                     .OrderByDescending(x => x.Id)
                     .OrderBy(x => x.IsHidden)
-                    .ToList();
+                    .ToListAsync();
                 Console.WriteLine($"{categories.Count} results");
             }
 

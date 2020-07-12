@@ -1,7 +1,9 @@
 using Npgsql;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 using MinorLinq.Lib.Interfaces;
 
 namespace MinorLinq.Lib.Drivers.Npgsql 
@@ -25,10 +27,21 @@ namespace MinorLinq.Lib.Drivers.Npgsql
             dbConnection.Dispose();
         }
 
-        public (IDataReader,IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns)
+        public (DbDataReader,IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns)
         {
             var cmd = CreateNpgsqlCommand(tableName, selects, conditions, orderByColumns);
             var reader = cmd.ExecuteReader();
+            
+            // get the sql statements
+            var statements = reader.Statements.Select(stmt => stmt.SQL).AsEnumerable();
+
+            return (reader, statements);
+        }
+        
+        public async Task<(DbDataReader,IEnumerable<string>)> ExecuteQueryAsync(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns)
+        {
+            var cmd = CreateNpgsqlCommand(tableName, selects, conditions, orderByColumns);
+            var reader = await cmd.ExecuteReaderAsync();
             
             // get the sql statements
             var statements = reader.Statements.Select(stmt => stmt.SQL).AsEnumerable();

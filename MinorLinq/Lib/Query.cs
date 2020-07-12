@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
+using System.Threading.Tasks;
 using MinorLinq.Lib;
 
 namespace MinorLinq.Lib
@@ -87,10 +88,13 @@ namespace MinorLinq.Lib
             );
         }
 
-        public List<TEntity> ToList() 
-        {
-            return context.ExecuteQuery<TEntity>(tableName, selects, where, orderByColumns);
-        }
+        public List<TEntity> ToList() => context.ExecuteQuery<TEntity>(tableName, selects, where, orderByColumns);
+        public TEntity[] ToArray() => ToList().ToArray();
+        public IEnumerable<TEntity> AsEnumerable() => ToList().AsEnumerable();
+        public async Task<List<TEntity>> ToListAsync() => await context.ExecuteQueryAsync<TEntity>(tableName, selects, where, orderByColumns);
+        public async Task<TEntity[]> ToArrayAsync() => (await ToListAsync()).ToArray();
+
+
 
         private QueryConditionMember ProccesConditionalExpressionMember(Expression expression, string[] columns) 
         {
