@@ -73,7 +73,7 @@ namespace MinorLinq.Lib
             {
                 var member = expression as MemberExpression;
                 var name = member.Member.Name;
-                if (columns.Where(x => x == name).Any()) 
+                if (columns.Any(x => x == name)) 
                 {
                     return new QueryConditionMember 
                     {

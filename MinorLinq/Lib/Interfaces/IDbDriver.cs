@@ -5,7 +5,8 @@ namespace MinorLinq.Lib.Interfaces
 {
     public interface IDbDriver
     {
-        void OpenConnection(string connection);
+        string ConnectionString { get; set; }
+        void OpenConnection();
         void CloseConnection();
         (IDataReader, IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions);
     }

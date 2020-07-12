@@ -1,3 +1,4 @@
+using System;
 using MinorLinq.Lib;
 using MinorLinq.Lib.Drivers.Npgsql;
 
@@ -5,13 +6,16 @@ namespace MinorLinq.Models
 {
     public class ConsoleDataContext : DataContext
     {
-        public DbTable<Post> Posts { get; set; } = new DbTable<Post>();
         public DbTable<Category> Categories { get; set; } = new DbTable<Category>();
-
-        public ConsoleDataContext() : base()
+        public DbTable<Post> Posts { get; set; } = new DbTable<Post>();
+        
+        public ConsoleDataContext() : base() { }
+        public ConsoleDataContext(Func<DataContextBuilder,DataContextBuilder> options) : base(options) { }
+        
+        protected override void OnConfigure(DataContextBuilder builder)
         {
-            //dbDriver = new NpgsqlDriver();
+            builder.UseNpgsql(
+                "Host=192.168.2.204;Username=postgres;Password=138b1488Smdfij8w!;Database=MinorLinq_t01");
         }
-
     }
 }

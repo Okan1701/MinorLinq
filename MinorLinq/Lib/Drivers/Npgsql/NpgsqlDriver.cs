@@ -12,14 +12,17 @@ namespace MinorLinq.Lib.Drivers.Npgsql
     {
         private NpgsqlConnection dbConnection;
 
-        public void OpenConnection(string connectionString) 
+        public string ConnectionString { get; set; }
+
+        public void OpenConnection() 
         {
-            dbConnection = new NpgsqlConnection(connectionString);
+            dbConnection = new NpgsqlConnection(ConnectionString);
             dbConnection.Open();
         }
 
         public void CloseConnection() 
         {
+            dbConnection.Close();
             dbConnection.Dispose();
         }
 

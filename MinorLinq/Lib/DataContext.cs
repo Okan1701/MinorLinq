@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using MinorLinq.Lib.Drivers.Npgsql;
 using MinorLinq.Lib.Interfaces;
 
@@ -9,22 +10,43 @@ namespace MinorLinq.Lib
     {
         protected IDbDriver dbDriver;
         protected IDataDeserializer deserializer;
+        protected bool logQuery;
         
-        public bool Disposed { get; set; } = false;
+        public bool Disposed { get; set; }
+        public bool IsConfigured { get; set; }
 
         public DataContext()
         {
-            dbDriver = new NpgsqlDriver();
-            deserializer = new DataDeserializer();
-            OnInit();
+            IsConfigured = false;
+            OnInit(new DataContextBuilder());
+        }
+
+        public DataContext(DataContextBuilder options)
+        {
+            IsConfigured = true;
+            OnInit(options);
+        }
+
+        public DataContext(Func<DataContextBuilder, DataContextBuilder> options)
+        {
+            var builder = options(new DataContextBuilder());
+            IsConfigured = true;
+            OnInit(builder);
         }
 
         public void Dispose() => Dispose(true);
 
-        private void OnInit()
+        private void OnInit(DataContextBuilder options)
         {
+            OnConfigure(options);
+            
+            dbDriver = options.DbDriver;
+            deserializer = options.Deserializer;
+            logQuery = options.LogQuery;
+            IsConfigured = true;
+            
             OnEntityRegister();
-            dbDriver.OpenConnection("Host=192.168.2.204;Username=postgres;Password=138b1488Smdfij8w!;Database=MinorLinq_t01");
+            dbDriver.OpenConnection();
         }
 
         protected virtual void OnEntityRegister()
@@ -39,12 +61,18 @@ namespace MinorLinq.Lib
             }
         }
 
+        protected virtual void OnConfigure(DataContextBuilder builder)
+        {
+            return;
+        }
+
         protected virtual void Dispose(bool disposing) 
         {
             if (Disposed) return;
             if (disposing) 
             {
-                //dbDriver.CloseConnection();
+                dbDriver.CloseConnection();
+                GC.Collect();
                 Disposed = true;
             }
         }
@@ -52,7 +80,11 @@ namespace MinorLinq.Lib
         public List<TEntity> ExecuteQuery<TEntity>(string tableName, string[] selects, QueryCondition[] conditions) where TEntity : class, new()
         {
             if (Disposed) throw new ObjectDisposedException("Context is already disposed and cannot accept queries!");
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             var queryRes = dbDriver.ExecuteQuery(tableName, selects, conditions);
+            stopWatch.Stop();
+            if (logQuery) { Console.WriteLine($"Execution of query took {stopWatch.ElapsedMilliseconds} ms | SQL: {queryRes.Item2}"); }
             return deserializer.Deserialize<TEntity>(queryRes.Item1);
         }
     }
