@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Data;
 
-namespace MinorLinq.Lib
+namespace MinorLinq.Lib.Interfaces
 {
     public interface IDbDriver
     {
         void OpenConnection(string connection);
         void CloseConnection();
-        void ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions);
+        (IDataReader, IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions);
     }
 }

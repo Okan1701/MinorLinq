@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
 using MinorLinq.Lib.Drivers.Npgsql;
+using MinorLinq.Lib.Interfaces;
 
 namespace MinorLinq.Lib
 {
     public abstract class DataContext : IDataContext, IDisposable
     {
         protected IDbDriver dbDriver;
+        protected IDataDeserializer deserializer;
         
         public bool Disposed { get; set; } = false;
 
         public DataContext()
         {
             dbDriver = new NpgsqlDriver();
+            deserializer = new DataDeserializer();
             OnInit();
         }
 
@@ -46,12 +49,11 @@ namespace MinorLinq.Lib
             }
         }
 
-        public List<TEntity> ExecuteQuery<TEntity>(string tableName, string[] selects, QueryCondition[] conditions)
+        public List<TEntity> ExecuteQuery<TEntity>(string tableName, string[] selects, QueryCondition[] conditions) where TEntity : class, new()
         {
             if (Disposed) throw new ObjectDisposedException("Context is already disposed and cannot accept queries!");
-            dbDriver.ExecuteQuery(tableName, selects, conditions);
-
-            return null;
+            var queryRes = dbDriver.ExecuteQuery(tableName, selects, conditions);
+            return deserializer.Deserialize<TEntity>(queryRes.Item1);
         }
     }
 }

@@ -1,6 +1,10 @@
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using MinorLinq.Lib.Interfaces;
 
 namespace MinorLinq.Lib.Drivers.Npgsql 
 {
@@ -19,10 +23,15 @@ namespace MinorLinq.Lib.Drivers.Npgsql
             dbConnection.Dispose();
         }
 
-        public void ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions) 
+        public (IDataReader,IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions)
         {
             var cmd = CreateNpgsqlCommand(tableName, selects, conditions);
             var reader = cmd.ExecuteReader();
+            
+            // get the sql statements
+            var statements = reader.Statements.Select(stmt => stmt.SQL).AsEnumerable();
+
+            return (reader, statements);
         }
         
         private NpgsqlCommand CreateNpgsqlCommand(string tableName, string[] selects, QueryCondition[] conditions) 
@@ -63,7 +72,7 @@ namespace MinorLinq.Lib.Drivers.Npgsql
 
                 var prefix = first ? "" : ",";
                 sql += $"{prefix}t.\"{column}\" = @{column}";
-                first = true;
+                first = false;
 
                 // We will bind the actual value later
                 conditionParams.Add(("@" + column, value));

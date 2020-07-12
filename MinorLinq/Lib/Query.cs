@@ -49,10 +49,6 @@ namespace MinorLinq.Lib
             var binaryExpr = whereFunc.Body as BinaryExpression;
             if (binaryExpr == null) throw new ArgumentException("The provided expression was invalid!");
 
-            // Convert the left part of the expression to MemberExpression and get it's value
-            var leftMember = binaryExpr.Left as MemberExpression;
-            if (leftMember == null) throw new ArgumentException("The left member of the expression was not a valid MemberExpression!");
-
             // Proccess both sides of the expression and extract the values
             var columnNames = typeof(TEntity).GetProperties().Select(x => x.Name).ToArray();
             var whereCondition = new QueryCondition 
