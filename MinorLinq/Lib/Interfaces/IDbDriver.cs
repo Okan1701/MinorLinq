@@ -9,6 +9,6 @@ namespace MinorLinq.Lib.Interfaces
         string ConnectionString { get; set; }
         void OpenConnection();
         void CloseConnection();
-        (IDataReader, IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions);
+        (IDataReader, IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions, (string,bool)[] orderByColumns);
     }
 }

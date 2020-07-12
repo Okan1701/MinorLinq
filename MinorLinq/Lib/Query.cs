@@ -11,22 +11,25 @@ namespace MinorLinq.Lib
         protected string tableName;
         protected string[] selects;
         protected QueryCondition[] where;
+        protected (string, bool)[] orderByColumns;
         protected IDataContext context;
 
         public Query() {  }
 
-        public Query(string tableName, string[] selects, QueryCondition[] where)
+        public Query(string tableName, string[] selects, QueryCondition[] where, (string, bool)[] orderByColumns)
         {
             this.tableName = tableName;
             this.selects = selects;
             this.where = where;
+            this.orderByColumns = orderByColumns;
         }
 
-        public Query(string tableName, string[] selects, QueryCondition[] where, IDataContext context)
+        public Query(string tableName, string[] selects, QueryCondition[] where, (string, bool)[] orderByColumns, IDataContext context)
         {
             this.tableName = tableName;
             this.selects = selects;
             this.where = where;
+            this.orderByColumns = orderByColumns;
             this.context = context;
         }
 
@@ -40,7 +43,7 @@ namespace MinorLinq.Lib
             {
                 properties.Add(prop.Name);
             }
-            return new Query<TEntity>(entityName, properties.ToArray(), where, context);
+            return new Query<TEntity>(entityName, properties.ToArray(), where, orderByColumns, context);
         }
 
         public Query<TEntity> Where(Expression<Func<TEntity, bool>> whereFunc)
@@ -59,15 +62,37 @@ namespace MinorLinq.Lib
             };
             where = where.Concat(new[] { whereCondition }).ToArray();
 
-            return new Query<TEntity>(tableName, selects, where, context);
+            return new Query<TEntity>(tableName, selects, where, orderByColumns, context);
+        }
+
+        public Query<TEntity> OrderBy(Expression<Func<TEntity, object>> orderBy)
+        {
+            return new Query<TEntity>(
+                tableName,
+                selects,
+                where,
+                orderByColumns.Concat(new[] {(GetOrderByColumnName(orderBy), false)}).ToArray(),
+                context
+            );
+        }
+        
+        public Query<TEntity> OrderByDescending(Expression<Func<TEntity, object>> orderBy)
+        {
+            return new Query<TEntity>(
+                tableName,
+                selects,
+                where,
+                orderByColumns.Concat(new[] {(GetOrderByColumnName(orderBy), true)}).ToArray(),
+                context
+            );
         }
 
         public List<TEntity> ToList() 
         {
-            return context.ExecuteQuery<TEntity>(tableName, selects, where);
+            return context.ExecuteQuery<TEntity>(tableName, selects, where, orderByColumns);
         }
 
-        protected QueryConditionMember ProccesConditionalExpressionMember(Expression expression, string[] columns) 
+        private QueryConditionMember ProccesConditionalExpressionMember(Expression expression, string[] columns) 
         {
             // First check if it contains a column name
             if (expression.NodeType == ExpressionType.MemberAccess) 
@@ -106,7 +131,7 @@ namespace MinorLinq.Lib
             return conditionMember;
         }
 
-        protected QueryConditionMember GetMemberExpressionValue(Expression member)
+        private QueryConditionMember GetMemberExpressionValue(Expression member)
         {
             var objectMember = Expression.Convert(member, typeof(object));
             var getterLambda = Expression.Lambda<Func<object>>(objectMember);
@@ -119,6 +144,31 @@ namespace MinorLinq.Lib
                 ValueType = value.GetType(),
                 IsColumn = false
             };
+        }
+        
+        private string GetOrderByColumnName(Expression<Func<TEntity, object>> orderBy)
+        {
+            MemberExpression expr;
+
+            if (orderBy.Body.NodeType == ExpressionType.Convert)
+            {
+                var convert = orderBy.Body as UnaryExpression;
+                expr = convert.Operand as MemberExpression;
+            }
+            else
+            {
+                expr = orderBy.Body as MemberExpression;
+            }
+
+            if (expr == null) throw new ArgumentException("Provided expression is not a valid MemberExpression!");
+
+            var name = expr.Member.Name;
+            if (typeof(TEntity).GetProperties().All(x => x.Name != name))
+            {
+                throw new ArgumentException("The provided key in the expression is not a column name!");
+            }
+
+            return name;
         }
     }
 

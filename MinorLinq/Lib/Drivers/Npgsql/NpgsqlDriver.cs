@@ -27,9 +27,9 @@ namespace MinorLinq.Lib.Drivers.Npgsql
             dbConnection.Dispose();
         }
 
-        public (IDataReader,IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions)
+        public (IDataReader,IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns)
         {
-            var cmd = CreateNpgsqlCommand(tableName, selects, conditions);
+            var cmd = CreateNpgsqlCommand(tableName, selects, conditions, orderByColumns);
             var reader = cmd.ExecuteReader();
             
             // get the sql statements
@@ -38,9 +38,32 @@ namespace MinorLinq.Lib.Drivers.Npgsql
             return (reader, statements);
         }
         
-        private NpgsqlCommand CreateNpgsqlCommand(string tableName, string[] selects, QueryCondition[] conditions) 
+        private NpgsqlCommand CreateNpgsqlCommand(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns) 
         {
             // Build the SELECT .. FROM part of the query first
+            string sql = GenerateSqlSelect(tableName, selects);
+
+            // Now we handle the where conditions if any are present
+            var whereStatement = GenerateSqlWhere(conditions);
+            sql += " " + whereStatement.Item1;
+            
+            // Generate the ORDER BY part
+            sql += " " + GenerateSqlOrderBy(orderByColumns);
+
+            // Create the Npgsql command
+            var cmd = new NpgsqlCommand(sql, dbConnection);
+
+            // Bind the where condition values
+            foreach ((string, object) condition in whereStatement.Item2) 
+            {
+                cmd.Parameters.AddWithValue(condition.Item1, condition.Item2);
+            }
+
+            return cmd;
+        }
+
+        private string GenerateSqlSelect(string tableName, string[] selects)
+        {
             string sql = "SELECT ";
             var first = true;
             foreach (var select in selects) 
@@ -50,16 +73,20 @@ namespace MinorLinq.Lib.Drivers.Npgsql
                 first = false;
             }
             sql += $" FROM \"{tableName}\" as t";
+            return sql;
+        }
 
-            // Now we handle the where conditions if any are present
+        private (string,List<(string, object)>) GenerateSqlWhere(QueryCondition[] conditions)
+        {
+            var sql = "";
             var conditionParams = new List<(string, object)>();
-            first = true;
+            var first = true;
             foreach (var condition in conditions) 
             {
                 // For now we don't support having both members be a column name
                 if (condition.LeftMember.IsColumn && condition.RightMember.IsColumn) throw new MinorLinqTranslateException("Both members of the where condition cannot be column names at the same time!");
 
-                if (first) sql += " WHERE ";
+                if (first) sql += "WHERE ";
 
                 string column;
                 object value;
@@ -82,16 +109,24 @@ namespace MinorLinq.Lib.Drivers.Npgsql
                 conditionParams.Add(("@" + column, value));
             }
 
-            // Create the Npgsql command
-            var cmd = new NpgsqlCommand(sql, dbConnection);
+            return (sql, conditionParams);
+        }
 
-            // Bind the where condition values
-            foreach (var condition in conditionParams) 
+        private string GenerateSqlOrderBy((string,bool)[] orderByColumns)
+        {
+            if (orderByColumns.Length == 0) return "";
+
+            var sql = "ORDER BY ";
+            var first = true;
+            foreach (var column in orderByColumns)
             {
-                cmd.Parameters.AddWithValue(condition.Item1, condition.Item2);
+                var prefix = first ? "" : ",";
+                var suffix = column.Item2 ? "DESC" : "";
+                sql += $"{prefix}t.\"{column.Item1}\" {suffix}";
+                first = false;
             }
 
-            return cmd;
+            return sql;
         }
     }
 }

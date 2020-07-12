@@ -88,12 +88,12 @@ namespace MinorLinq.Lib
             }
         }
 
-        public List<TEntity> ExecuteQuery<TEntity>(string tableName, string[] selects, QueryCondition[] conditions) where TEntity : class, new()
+        public List<TEntity> ExecuteQuery<TEntity>(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns) where TEntity : class, new()
         {
             if (Disposed) throw new ObjectDisposedException("Context is already disposed and cannot accept queries!");
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            var queryRes = dbDriver.ExecuteQuery(tableName, selects, conditions);
+            var queryRes = dbDriver.ExecuteQuery(tableName, selects, conditions, orderByColumns);
             stopWatch.Stop();
             if (isLogging)
             {
