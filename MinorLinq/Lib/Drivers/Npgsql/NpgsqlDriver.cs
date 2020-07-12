@@ -1,8 +1,6 @@
 using Npgsql;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using MinorLinq.Lib.Interfaces;
 
@@ -90,19 +88,20 @@ namespace MinorLinq.Lib.Drivers.Npgsql
 
                 string column;
                 object value;
+                var prefix = first ? "" : " AND ";
+                var conditionOperator = Utils.GetConditionOperator(condition.OperatorType);
                 if (condition.LeftMember.IsColumn) 
                 {
                     column = condition.LeftMember.Value;
                     value = condition.RightMember.ValueRaw;
+                    sql += $"{prefix}t.\"{column}\" {conditionOperator} @{column}";
                 }
                 else 
                 {
                     column = condition.RightMember.Value;
                     value = condition.LeftMember.ValueRaw;
+                    sql += $"{prefix}@{column} {conditionOperator} t.\"{column}\"";
                 }
-
-                var prefix = first ? "" : " AND ";
-                sql += $"{prefix}t.\"{column}\" = @{column}";
                 first = false;
 
                 // We will bind the actual value later

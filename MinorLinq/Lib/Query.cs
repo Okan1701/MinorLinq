@@ -50,7 +50,7 @@ namespace MinorLinq.Lib
         {
             // If expression is not a BinaryExpression then we cannot procces it.
             var binaryExpr = whereFunc.Body as BinaryExpression;
-            if (binaryExpr == null) throw new ArgumentException("The provided expression was invalid!");
+            if (binaryExpr == null) throw new ArgumentException($"The provided expression was invalid! (NodeType: {whereFunc.Body.NodeType})");
 
             // Proccess both sides of the expression and extract the values
             var columnNames = typeof(TEntity).GetProperties().Select(x => x.Name).ToArray();

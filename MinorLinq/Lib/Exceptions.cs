@@ -15,4 +15,11 @@ namespace MinorLinq.Lib
         public MinorLinqContextNotConfiguredException(string message) : base(message) { }
         public MinorLinqContextNotConfiguredException(string message, Exception inner) : base(message, inner) { }
     }
+    
+    public class MinorLinqInvalidExpressionTypeException : Exception
+    {
+        public MinorLinqInvalidExpressionTypeException() { }
+        public MinorLinqInvalidExpressionTypeException(string message) : base(message) { }
+        public MinorLinqInvalidExpressionTypeException(string message, Exception inner) : base(message, inner) { }
+    }
 }
