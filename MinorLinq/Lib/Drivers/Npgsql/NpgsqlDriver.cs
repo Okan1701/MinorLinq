@@ -51,21 +51,18 @@ namespace MinorLinq.Lib.Drivers.Npgsql
         
         private NpgsqlCommand CreateNpgsqlCommand(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns) 
         {
-            // Build the SELECT .. FROM part of the query first
-            string sql = GenerateSqlSelect(tableName, selects);
-
-            // Now we handle the where conditions if any are present
-            var whereStatement = GenerateSqlWhere(conditions);
-            sql += " " + whereStatement.Item1;
-            
-            // Generate the ORDER BY part
-            sql += " " + GenerateSqlOrderBy(orderByColumns);
+            // Use the sql builder to generate a SQL query string
+            SqlBuilderResult query = new GenericSqlBuilder("@")
+                .GenerateSelect(tableName, selects)
+                .GenerateWhere(conditions)
+                .GenerateOrderBy(orderByColumns)
+                .GetSql();
 
             // Create the Npgsql command
-            var cmd = new NpgsqlCommand(sql, dbConnection);
+            var cmd = new NpgsqlCommand(query.Sql, dbConnection);
 
             // Bind the where condition values
-            foreach ((string, object) condition in whereStatement.Item2) 
+            foreach ((string, object) condition in query.Parameters) 
             {
                 cmd.Parameters.AddWithValue(condition.Item1, condition.Item2);
             }
