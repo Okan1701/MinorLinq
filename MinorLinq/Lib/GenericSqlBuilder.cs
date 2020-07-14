@@ -6,11 +6,17 @@ using System.Linq;
 
 namespace MinorLinq.Lib
 {
+    /// <summary>
+    /// A generic builder for generating a SQL statement from a LINQ query
+    /// </summary>
     public class GenericSqlBuilder
     {
         private string paramPrefix = "@";
         private List<(string, object)> parameters = new List<(string, object)>();
         
+        /// <summary>
+        /// The current SQL string that has been generated so far
+        /// </summary>
         public string Sql { get; set; }
 
         public GenericSqlBuilder()
@@ -35,7 +41,14 @@ namespace MinorLinq.Lib
             paramPrefix = prefix;
             this.parameters = parameters;
         }
-
+        
+        /// <summary>
+        /// Generate the SELECT ... FROM ... part of the SQL string.
+        /// WARNING: This method must be used first before any other Generate method can be used!
+        /// </summary>
+        /// <param name="tableName">Name of the database table</param>
+        /// <param name="selects">Array of string representing the selected table columns</param>
+        /// <returns>An updated builder with the new SQL string</returns>
         public GenericSqlBuilder GenerateSelect(string tableName, string[] selects)
         {
             string sql = "SELECT ";
@@ -43,17 +56,25 @@ namespace MinorLinq.Lib
             foreach (var select in selects) 
             {
                 var prefix = first ? "" : ",";
-                sql += $"{prefix}t.\"{select}\"";
+                sql += $"{prefix}t.\"{select}\""; // Format: t."ColumnName"
+                // Used so we know if we should prefix it with a , character for the next iteration
                 first = false;
             }
             sql += $" FROM \"{tableName}\" as t";
             
             return new GenericSqlBuilder(paramPrefix, sql);
         }
-
+        
+        /// <summary>
+        /// Generate the WHERE part of the SQL string
+        /// </summary>
+        /// <param name="conditions">Collection of query conditions</param>
+        /// <returns>An updated builder with the new SQL string</returns>
+        /// <exception cref="MinorLinqSqlBuilderInvalidGenerateOrder">Cannot run this method before GenerateSelect has been used</exception>
+        /// <exception cref="MinorLinqTranslateException">Having a condition where both members are column names is not allowed</exception>
         public GenericSqlBuilder GenerateWhere(IEnumerable<QueryCondition> conditions)
         {
-            if (string.IsNullOrEmpty(Sql)) throw new Exception("A Select statement needs to be generated before you can use the other operators");
+            if (string.IsNullOrEmpty(Sql)) throw new MinorLinqSqlBuilderInvalidGenerateOrder("A Select statement needs to be generated before you can use the other operators");
             
             var sql = "";
             var conditionParams = new List<(string, object)>();
@@ -90,7 +111,12 @@ namespace MinorLinq.Lib
             var test = Sql + " " + sql;
             return new GenericSqlBuilder(paramPrefix, Sql + " " + sql, conditionParams);
         }
-
+        
+        /// <summary>
+        /// Generate the ORDER BY part of the SQL string
+        /// </summary>
+        /// <param name="orderByColumns">Tuple representing the name of the column that we want to order by and a bool for descending or ascending</param>
+        /// <returns>An updated builder with the new SQL string</returns>
         public GenericSqlBuilder GenerateOrderBy((string,bool)[] orderByColumns)
         {
             if (orderByColumns.Length == 0) return new GenericSqlBuilder(paramPrefix, Sql, parameters);
@@ -107,7 +133,10 @@ namespace MinorLinq.Lib
             
             return new GenericSqlBuilder(paramPrefix, Sql + " " + sql, parameters);
         }
-
+        
+        /// <summary>
+        /// Returns a SQlBuilderResult containing the final SQL string and a list of the parameter value tuples
+        /// </summary>
         public SqlBuilderResult GetSql()
         {
             return new SqlBuilderResult()

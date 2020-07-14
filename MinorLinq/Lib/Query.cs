@@ -7,6 +7,10 @@ using MinorLinq.Lib;
 
 namespace MinorLinq.Lib
 {
+    /// <summary>
+    /// Represents a Query Table that allows you to generate and execute SQL queries using LINQ methods
+    /// </summary>
+    /// <typeparam name="TEntity">Type of the Entity that the query is targeting</typeparam>
     public class Query<TEntity> where TEntity : class, new()
     {
         protected string tableName;

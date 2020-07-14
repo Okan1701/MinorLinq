@@ -4,6 +4,10 @@ namespace MinorLinq.Lib
 {
     public static class Utils
     {
+        /// <summary>
+        /// Return the string version of a Expression Node Type
+        /// </summary>
+        /// <exception cref="MinorLinqInvalidExpressionTypeException">The provided ExpressionType is not supported</exception>
         public static string GetConditionOperator(ExpressionType type)
         {
             switch (type)

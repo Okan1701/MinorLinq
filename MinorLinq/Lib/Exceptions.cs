@@ -29,4 +29,11 @@ namespace MinorLinq.Lib
         public MinorLinqInvalidReaderRowException(string message) : base(message) { }
         public MinorLinqInvalidReaderRowException(string message, Exception inner) : base(message, inner) { }
     }
+    
+    public class MinorLinqSqlBuilderInvalidGenerateOrder : Exception
+    {
+        public MinorLinqSqlBuilderInvalidGenerateOrder() { }
+        public MinorLinqSqlBuilderInvalidGenerateOrder(string message) : base(message) { }
+        public MinorLinqSqlBuilderInvalidGenerateOrder(string message, Exception inner) : base(message, inner) { }
+    }
 }
