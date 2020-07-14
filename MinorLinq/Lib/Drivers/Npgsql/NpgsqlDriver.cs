@@ -11,14 +11,16 @@ namespace MinorLinq.Lib.Drivers.Npgsql
     public class NpgsqlDriver : IDbDriver 
     {
         private NpgsqlConnection dbConnection;
+        private ILogger logger;
 
         public string DriverName { get; set; } = "PostgreSQL v1.0.0";
         public string ConnectionString { get; set; }
 
-        public void OpenConnection() 
+        public void OpenConnection(ILogger contextLogger) 
         {
             dbConnection = new NpgsqlConnection(ConnectionString);
             dbConnection.Open();
+            logger = contextLogger;
         }
 
         public void CloseConnection() 

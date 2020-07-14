@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -57,7 +58,12 @@ namespace MinorLinq.Lib
         {
             foreach (var prop in entity.GetType().GetProperties())
             {
-                if (prop.Name == propName) prop.SetValue(entity, value);
+                if (prop.Name == propName)
+                {
+                    var propType = prop.PropertyType;
+                    object convertedValue = Convert.ChangeType(value, propType);
+                    prop.SetValue(entity, convertedValue);
+                }
             }
         }
     }

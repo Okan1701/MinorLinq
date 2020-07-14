@@ -15,7 +15,7 @@ namespace MinorLinq.Models
         
         protected override void OnConfigure(DataContextBuilder builder)
         {
-            builder.UseNpgsql("Host=192.168.2.204;Username=postgres;Password=138b1488Smdfij8w!;Database=MinorLinq_t01");
+            builder.UseNpgsql("Host=192.168.2.204;Username=postgres;Password=postgres;Database=MinorLinq_t01");
             //builder.UseSqlite("Data Source=sample.db");
         }
     }

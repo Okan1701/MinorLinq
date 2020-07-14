@@ -50,7 +50,7 @@ namespace MinorLinq.Lib
             IsConfigured = true;
             
             OnEntityRegister();
-            dbDriver.OpenConnection();
+            dbDriver.OpenConnection(logger);
             if (isLogging)
             {
                 logger.Log($"{this.GetType().Name} has been initialized with driver: {dbDriver.DriverName} ({dbDriver.GetType().FullName})");

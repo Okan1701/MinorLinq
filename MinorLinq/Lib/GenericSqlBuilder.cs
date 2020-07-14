@@ -73,7 +73,7 @@ namespace MinorLinq.Lib
                 {
                     column = condition.LeftMember.Value;
                     value = condition.RightMember.ValueRaw;
-                    sql += $"{prefix}t.\"{column}\" {conditionOperator} @{column}";
+                    sql += $"{prefix}t.\"{column}\" {conditionOperator} {paramPrefix}{column}";
                 }
                 else 
                 {

@@ -9,7 +9,7 @@ namespace MinorLinq.Lib.Interfaces
     {
         string DriverName { get; set; }
         string ConnectionString { get; set; }
-        void OpenConnection();
+        void OpenConnection(ILogger logger);
         void CloseConnection();
         (DbDataReader, IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions, (string,bool)[] orderByColumns);
         Task<(DbDataReader, IEnumerable<string>)> ExecuteQueryAsync(string tableName, string[] selects, QueryCondition[] conditions, (string,bool)[] orderByColumns);
