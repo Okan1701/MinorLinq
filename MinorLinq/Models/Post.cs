@@ -5,6 +5,7 @@ namespace MinorLinq.Models
     public class Post
     {
         public int Id { get; set; }
+        public string PostName { get; set; }
         public bool IsHidden { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime EditedOn { get; set; }

@@ -4,8 +4,6 @@ namespace MinorLinq.Lib
 {
     public class DataContextBuilder
     {
-        private bool logQuery;
-        
         /// <summary>
         /// The driver instance that will be used by the context
         /// </summary>
