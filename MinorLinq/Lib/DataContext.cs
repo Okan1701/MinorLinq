@@ -128,7 +128,11 @@ namespace MinorLinq.Lib
             {
                 logger.LogQueryResult(stopWatch.ElapsedMilliseconds, queryRes.Item2);
             }
-            return deserializer.Deserialize<TEntity>(queryRes.Item1);
+
+            var res = deserializer.Deserialize<TEntity>(queryRes.Item1);
+            queryRes.Item1.Close();
+            queryRes.Item1.Dispose();
+            return res;
         }        
         
         /// <summary>
@@ -152,7 +156,11 @@ namespace MinorLinq.Lib
             {
                 logger.LogQueryResult(stopWatch.ElapsedMilliseconds, queryRes.Item2);
             }
-            return await deserializer.DeserializeAsync<TEntity>(queryRes.Item1);
+
+            var res = await deserializer.DeserializeAsync<TEntity>(queryRes.Item1);
+            await queryRes.Item1.CloseAsync();
+            await queryRes.Item1.DisposeAsync();
+            return res;
         }
         
     }

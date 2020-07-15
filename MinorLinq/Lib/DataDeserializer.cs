@@ -17,15 +17,18 @@ namespace MinorLinq.Lib
         /// <returns>List of entities that represent the results from the reader</returns>
         public List<T> Deserialize<T>(DbDataReader reader) where T : class, new()
         {
-            var entityList = new List<T>();
-            var entityPropNames = typeof(T).GetProperties().Select(x => x.Name).ToArray();
-
-            while (reader.Read())
+            using (reader)
             {
-                entityList.Add(ProccesReaderRow<T>(reader, entityPropNames));
-            }
+                var entityList = new List<T>();
+                var entityPropNames = typeof(T).GetProperties().Select(x => x.Name).ToArray();
+
+                while (reader.Read())
+                {
+                    entityList.Add(ProccesReaderRow<T>(reader, entityPropNames));
+                }
             
-            return entityList;
+                return entityList;
+            }
         }
         /// <summary>
         /// Read the contents of the data reader and deserialize it asynchronously into a List of entities with type TEntity
@@ -35,15 +38,18 @@ namespace MinorLinq.Lib
         /// <returns>List of entities that represent the results from the reader</returns>
         public async Task<List<T>> DeserializeAsync<T>(DbDataReader reader) where T : class, new()
         {
-            var entityList = new List<T>();
-            var entityPropNames = typeof(T).GetProperties().Select(x => x.Name).ToArray();
-
-            while (await reader.ReadAsync())
+            using (reader)
             {
-                entityList.Add(ProccesReaderRow<T>(reader, entityPropNames));
-            }
+                var entityList = new List<T>();
+                var entityPropNames = typeof(T).GetProperties().Select(x => x.Name).ToArray();
+
+                while (await reader.ReadAsync())
+                {
+                    entityList.Add(ProccesReaderRow<T>(reader, entityPropNames));
+                }
             
-            return entityList;
+                return entityList;
+            }
         }
         
         /// <summary>

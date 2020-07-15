@@ -31,24 +31,28 @@ namespace MinorLinq.Lib.Drivers.Npgsql
 
         public (DbDataReader,IEnumerable<string>) ExecuteQuery(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns)
         {
-            var cmd = CreateNpgsqlCommand(tableName, selects, conditions, orderByColumns);
-            var reader = cmd.ExecuteReader();
+            using (var cmd = CreateNpgsqlCommand(tableName, selects, conditions, orderByColumns))
+            {
+                var reader = cmd.ExecuteReader();
             
-            // get the sql statements
-            var statements = reader.Statements.Select(stmt => stmt.SQL).AsEnumerable();
+                // get the sql statements
+                var statements = reader.Statements.Select(stmt => stmt.SQL).AsEnumerable();
 
-            return (reader, statements);
+                return (reader, statements);
+            }
         }
         
         public async Task<(DbDataReader,IEnumerable<string>)> ExecuteQueryAsync(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns)
         {
-            var cmd = CreateNpgsqlCommand(tableName, selects, conditions, orderByColumns);
-            var reader = await cmd.ExecuteReaderAsync();
+            using (var cmd = CreateNpgsqlCommand(tableName, selects, conditions, orderByColumns))
+            {
+                var reader = await cmd.ExecuteReaderAsync();
             
-            // get the sql statements
-            var statements = reader.Statements.Select(stmt => stmt.SQL).AsEnumerable();
+                // get the sql statements
+                var statements = reader.Statements.Select(stmt => stmt.SQL).AsEnumerable();
 
-            return (reader, statements);
+                return (reader, statements);
+            }
         }
         
         private NpgsqlCommand CreateNpgsqlCommand(string tableName, string[] selects, QueryCondition[] conditions, (string, bool)[] orderByColumns) 

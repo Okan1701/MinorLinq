@@ -27,8 +27,8 @@ namespace MinorLinq
             {    
                 // Get all categories and posts
                 // Async methods are also available
-                allCategories = await context.Categories.ToArrayAsync();
                 allPosts = context.Posts.AsEnumerable();
+                allCategories = await context.Categories.ToArrayAsync();
 
                 hiddenCategories = await context.Categories
                     .Where(category => category.IsHidden == true)
