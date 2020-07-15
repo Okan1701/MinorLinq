@@ -70,12 +70,22 @@ namespace MinorLinq.Lib
         /// </summary>
         private void OnEntityRegister()
         {
-            foreach (var property in this.GetType().GetProperties())
+            foreach (var property in GetType().GetProperties())
             {
                 if (typeof(IDbTable).IsAssignableFrom(property.PropertyType))
                 {
-                    IDbTable entity = (IDbTable)property.GetValue(this);
-                    entity.SetAssignedContext(this);
+                    /*
+                     * Get the details about the DbTable<T> type including what kind of type T is
+                     * Then use that to create an instance of DbTable with the correct type T
+                     */
+                    Type propGenericType = property.PropertyType.GetGenericTypeDefinition();
+                    Type[] typeArguments = property.PropertyType.GenericTypeArguments;
+                    var generic = propGenericType.MakeGenericType(typeArguments);
+                    
+                    IDbTable instance = (IDbTable)Activator.CreateInstance(generic);
+                    instance.SetAssignedContext(this);
+                    
+                    property.SetValue(this, instance);
                 }
             }
         }

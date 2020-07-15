@@ -7,8 +7,8 @@ namespace MinorLinq.Models
 {
     public class ConsoleDataContext : DataContext
     {
-        public DbTable<Category> Categories { get; set; } = new DbTable<Category>();
-        public DbTable<Post> Posts { get; set; } = new DbTable<Post>();
+        public DbTable<Category> Categories { get; set; }
+        public DbTable<Post> Posts { get; set; }
         
         public ConsoleDataContext() : base() { }
         public ConsoleDataContext(Func<DataContextBuilder,DataContextBuilder> options) : base(options) { }
